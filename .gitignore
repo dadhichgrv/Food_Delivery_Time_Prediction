@@ -224,5 +224,13 @@ __marimo__/
 /data/processed
 /data/features
 /model.pkl
-/etric
+/metric
 /metrics.json
+/swiggy.csv
+/test.yaml
+/data_clean_utils.py
+/Contacts.xlsx
+/Contacts copy.csv
+/check.yaml 
+/Extra
+
