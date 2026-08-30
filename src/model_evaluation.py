@@ -13,9 +13,9 @@ X_test_trans = test_features.drop(columns='time_taken')
 y_test = test['time_taken']
 
 pt = pickle.load(open("power_transformer.pkl","rb"))
-rf = pickle.load(open("model.pkl","rb"))
+lr = pickle.load(open("model.pkl","rb"))
 
-y_pred_test = rf.predict(X_test_trans)
+y_pred_test = lr.predict(X_test_trans)
 y_pred_test_org = pt.inverse_transform(y_pred_test.reshape(-1,1))
 
 mae = mean_absolute_error(y_test,y_pred_test_org)
@@ -27,4 +27,8 @@ metrics = {"mean_square_error":mae,
           }
 
 json.dump(metrics,open("metrics.json","w"))
+
+
+# RF : {"mean_square_error": 3.1250103792764397, "r2_score": 0.8250822570118966}
+# Test file is 7614 rows
 

@@ -12,9 +12,9 @@ X_train_trans = train.drop(columns='time_taken')
 y_train_pt = train['time_taken']
 
 # Train the model
-rf = RandomForestRegressor()
-rf.fit(X_train_trans,y_train_pt)
+lr = LinearRegression()
+lr.fit(X_train_trans,y_train_pt)
 
 # Save the model
-pickle.dump(rf, open('model.pkl','wb'))
+pickle.dump(lr, open('model.pkl','wb'))
 
