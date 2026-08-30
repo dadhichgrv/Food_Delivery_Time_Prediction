@@ -88,14 +88,13 @@ def drop_columns(df: pd.DataFrame) -> pd.DataFrame:
                     'order_date',
                     "order_hour"]
 
-    df.drop(columns=columns_to_drop, inplace=True)
-    temp_df = df.copy().dropna()
+    temp_df = df.drop(labels=columns_to_drop, axis=1, errors='ignore').dropna()
     return temp_df
 
 
-def split_data(temp_df: pd.DataFrame,test_size:float)->pd.DataFrame:
+def split_data(temp_df: pd.DataFrame,test_size:float)->tuple:
     # split into X and y
-    X = temp_df.drop(columns='time_taken',axis=1)
+    X = temp_df.drop(columns='time_taken')
     y = temp_df['time_taken']
 
     # train test split
@@ -176,7 +175,7 @@ INPUT_FOLDER = ROOT_FOLDER / "data" / "processed"
 
 def main():
     test_size = load_params("params.yaml")
-    file_path = INPUT_FOLDER / "/swiggy_cleaned.csv"
+    file_path = INPUT_FOLDER / "swiggy_cleaned.csv"
     df = read_data(file_path.as_posix())
     temp_df = drop_columns(df)
     X_train, X_test, y_train, y_test = split_data(temp_df,test_size)

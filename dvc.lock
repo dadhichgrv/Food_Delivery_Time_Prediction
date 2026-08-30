@@ -1,0 +1,96 @@
+schema: '2.0'
+stages:
+  data_ingestion:
+    cmd: uv run python src/data_ingestion.py
+    deps:
+    - path: src/data_ingestion.py
+      hash: md5
+      md5: 9309eaeeb2985e8912b6d827b7fa8db2
+      size: 1571
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: 95039b850abe5e46163aee2ba5815a97.dir
+      size: 7730654
+      nfiles: 1
+  data_cleaning:
+    cmd: uv run python src/data_cleaning.py
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: 95039b850abe5e46163aee2ba5815a97.dir
+      size: 7730654
+      nfiles: 1
+    - path: src/data_cleaning.py
+      hash: md5
+      md5: f0032de925c82a30e229bc30aaadb675
+      size: 5040
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: e8db0aa4b1fdc40e86d57e5bc581274e.dir
+      size: 7878711
+      nfiles: 1
+  feature_engineering:
+    cmd: uv run python src/feature_engineering.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: e8db0aa4b1fdc40e86d57e5bc581274e.dir
+      size: 7878711
+      nfiles: 1
+    - path: src/feature_engineering.py
+      hash: md5
+      md5: aa61bf313aacbcbfbede5f3e33176714
+      size: 6575
+    params:
+      params.yaml:
+        feature_engineering.test_size: 0.2
+    outs:
+    - path: data/features
+      hash: md5
+      md5: cdee5b4ef4c5fccf18b39753247f2b6e.dir
+      size: 13811718
+      nfiles: 4
+  model_building:
+    cmd: uv run python src/model_building.py
+    deps:
+    - path: data/features
+      hash: md5
+      md5: cdee5b4ef4c5fccf18b39753247f2b6e.dir
+      size: 13811718
+      nfiles: 4
+    - path: src/model_building.py
+      hash: md5
+      md5: 0f65b197739f69fe5dd88aed80ae614c
+      size: 460
+    outs:
+    - path: model.pkl
+      hash: md5
+      md5: 4e3987ea99547548feb39700721b57e1
+      size: 216241364
+  model_evaluation:
+    cmd: uv run python src/model_evaluation.py
+    deps:
+    - path: data/features
+      hash: md5
+      md5: cdee5b4ef4c5fccf18b39753247f2b6e.dir
+      size: 13811718
+      nfiles: 4
+    - path: model.pkl
+      hash: md5
+      md5: 4e3987ea99547548feb39700721b57e1
+      size: 216241364
+    - path: power_transformer.pkl
+      hash: md5
+      md5: f86f286d36990da836ffa6971c43f356
+      size: 629
+    - path: src/model_evaluation.py
+      hash: md5
+      md5: 7739fcc194f53435edb3b785e844c78b
+      size: 820
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: 45065433031d4aa85e86d6e073d941f7
+      size: 73
