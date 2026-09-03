@@ -4,3 +4,8 @@ numpy
 scikit-learn
 python-dotenv
 pyyaml
+mlflow
+dvc
+azureml-mlflow 
+azure-ai-ml
+azure-identity

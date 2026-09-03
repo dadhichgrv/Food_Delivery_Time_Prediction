@@ -1,8 +1,37 @@
 import os
+import mlflow
 import pandas as pd
 import pickle
 import json
-from sklearn.metrics import mean_absolute_error, r2_score, recall_score, precision_score
+from dotenv import load_dotenv
+from sklearn.metrics import mean_absolute_error, r2_score
+
+from azure.identity import DefaultAzureCredential, InteractiveBrowserCredential
+from azure.ai.ml import MLClient
+
+load_dotenv()
+
+tenant_id = "2c06054d-006e-4d5f-bf87-12294be4e2da"
+
+try:
+    credential = DefaultAzureCredential(interactive_browser_tenant_id=tenant_id)
+    credential.get_token("https://management.azure.com/.default")
+except Exception:
+    credential = InteractiveBrowserCredential(tenant_id=tenant_id)
+
+ml_client = MLClient(
+    credential=credential,
+    subscription_id=os.getenv("SUBSCRIPTION_ID"),
+    resource_group_name=os.getenv("RESOURCE_GROUP"),
+    workspace_name=os.getenv("ML_WORKSPACE_NAME")
+)
+
+mlflow_tracking_uri = ml_client.workspaces.get(ml_client.workspace_name).mlflow_tracking_uri
+mlflow.set_tracking_uri(mlflow_tracking_uri)
+
+# load the run id from training
+with open("run_id.txt") as f:
+    run_id = f.read().strip()
 
 # Load original and transformed features for test data
 test = pd.read_csv('./data/features/test.csv')
@@ -28,7 +57,10 @@ metrics = {"mean_square_error":mae,
 
 json.dump(metrics,open("metrics.json","w"))
 
-
+# log into the SAME run as training
+with mlflow.start_run(run_id=run_id):
+    mlflow.log_metrics(metrics)
+    
 # RF : {"mean_square_error": 3.1250103792764397, "r2_score": 0.8250822570118966}
 # Test file is 7614 rows
 
