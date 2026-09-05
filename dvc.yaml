@@ -26,13 +26,16 @@ stages:
     deps:
     - data/features
     - src/model_building.py
+    # params:
+    # - model_building.max_depth
+    # - model_building.n_estimators
     outs:
-    - model.pkl
+    - best_rf_model.pkl
   model_evaluation:
     cmd: uv run python src/model_evaluation.py
     deps:
     - data/features
-    - model.pkl
+    - best_rf_model.pkl
     - power_transformer.pkl
     - src/model_evaluation.py
     metrics:

@@ -42,9 +42,9 @@ X_test_trans = test_features.drop(columns='time_taken')
 y_test = test['time_taken']
 
 pt = pickle.load(open("power_transformer.pkl","rb"))
-lr = pickle.load(open("model.pkl","rb"))
+model = pickle.load(open("best_rf_model.pkl","rb"))
 
-y_pred_test = lr.predict(X_test_trans)
+y_pred_test = model.predict(X_test_trans)
 y_pred_test_org = pt.inverse_transform(y_pred_test.reshape(-1,1))
 
 mae = mean_absolute_error(y_test,y_pred_test_org)
@@ -60,7 +60,11 @@ json.dump(metrics,open("metrics.json","w"))
 # log into the SAME run as training
 with mlflow.start_run(run_id=run_id):
     mlflow.log_metrics(metrics)
-    
+
+    # logging dataset
+    test_mlflow = mlflow.data.from_pandas(test,name="test_dataset")
+    mlflow.log_input(test_mlflow,context="test dataset")
+
 # RF : {"mean_square_error": 3.1250103792764397, "r2_score": 0.8250822570118966}
 # Test file is 7614 rows
 

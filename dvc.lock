@@ -62,35 +62,35 @@ stages:
       nfiles: 4
     - path: src/model_building.py
       hash: md5
-      md5: d293c50789cdaba1af6a4870eb208002
-      size: 1580
+      md5: b6a14c2d2a3ff4d6c5cca872325de3e2
+      size: 2593
     outs:
-    - path: model.pkl
+    - path: best_rf_model.pkl
       hash: md5
-      md5: 07e876e548647ee4676e0bd9e8126171
-      size: 2154
+      md5: 47e3f7cc70bf600c8645078c053a001a
+      size: 480197
   model_evaluation:
     cmd: uv run python src/model_evaluation.py
     deps:
+    - path: best_rf_model.pkl
+      hash: md5
+      md5: 47e3f7cc70bf600c8645078c053a001a
+      size: 480197
     - path: data/features
       hash: md5
       md5: 38e660b684ddfb578c4d9fdbd7960cde.dir
       size: 13812809
       nfiles: 4
-    - path: model.pkl
-      hash: md5
-      md5: 07e876e548647ee4676e0bd9e8126171
-      size: 2154
     - path: power_transformer.pkl
       hash: md5
       md5: a6c444ff925c3d2c91beb7b19fbe8d82
       size: 629
     - path: src/model_evaluation.py
       hash: md5
-      md5: 19c55b884752990f530035a2160db63f
-      size: 1908
+      md5: fdafe4c714cfda9e9473b219c7d5a530
+      size: 2066
     outs:
     - path: metrics.json
       hash: md5
-      md5: 4f2f04e4363ad10b1e97e981fed753c1
-      size: 72
+      md5: 042559ef07d8fcb281d03b7107fef920
+      size: 70
