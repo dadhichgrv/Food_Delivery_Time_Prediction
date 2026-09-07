@@ -26,6 +26,14 @@ jobs:
       - name: Install dependencies
         run: uv pip install --system -r requirements.txt
 
+      - name: Configure environment variables
+        run: |
+          echo "SUBSCRIPTION_ID=${{ secrets.SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP=${{ secrets.RESOURCE_GROUP }}" >> $GITHUB_ENV
+          echo "ML_WORKSPACE_NAME=${{ secrets.ML_WORKSPACE_NAME }}" >> $GITHUB_ENV
+          echo "tenant_id=${{ secrets.TENANT_ID }}" >> $GITHUB_ENV
+
+
       - name: Run DVC pipeline
         run: |
           dvc repro
