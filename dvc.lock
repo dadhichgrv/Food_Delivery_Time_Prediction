@@ -62,8 +62,8 @@ stages:
       nfiles: 4
     - path: src/model_building.py
       hash: md5
-      md5: b6a14c2d2a3ff4d6c5cca872325de3e2
-      size: 2593
+      md5: 30d9edd48594bce152f6d914242cbd5a
+      size: 3204
     outs:
     - path: best_rf_model.pkl
       hash: md5

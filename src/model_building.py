@@ -10,6 +10,7 @@ import yaml
 from azure.identity import DefaultAzureCredential , InteractiveBrowserCredential
 from azure.ai.ml import MLClient
 from sklearn.model_selection import RandomizedSearchCV
+from mlflow.exceptions import MlflowException
 
 load_dotenv()
 
@@ -59,11 +60,19 @@ param_grid = {
     'n_estimators':[100,200,300]
             }
 
-random_search = RandomizedSearchCV(estimator=rf, param_distributions=param_grid,cv=5, random_state=42)
+random_search = RandomizedSearchCV(estimator=rf, param_distributions=param_grid, cv=5, random_state=42)
 
-with mlflow.start_run() as run:
+
+# Log all the combbination runs     
+with mlflow.start_run(run_name='random_search') as parent_run:
 
     random_search.fit(X_train_trans,y_train_pt)
+
+    for i in range(len(random_search.cv_results_['params'])):
+
+        with mlflow.start_run(nested=True) as child_run:
+            mlflow.log_params(random_search.cv_results_['params'][i])
+            mlflow.log_metric("r square",random_search.cv_results_['mean_test_score'][i])
 
     best_params = random_search.best_params_
     best_score  = random_search.best_score_
@@ -74,16 +83,22 @@ with mlflow.start_run() as run:
 
     mlflow.sklearn.log_model(random_search.best_estimator_,"random_forest")
     mlflow.log_params(best_params)
-    mlflow.log_metric("best_score",best_score)
+    mlflow.log_metric("best_score",best_score) # This is r-square
     
     # Set tags
     mlflow.set_tag('author','GD')
     mlflow.set_tag('model','Random Forest')
 
     # logging dataset
-    train_mlflow = mlflow.data.from_pandas(train, name="train_dataset")
-    mlflow.log_input(train_mlflow,context="training dataset")
+    try:
+        train_mlflow = mlflow.data.from_pandas(train, name="train_dataset")
+        mlflow.log_input(train_mlflow, context="training dataset")
+    except mlflow.exceptions.MlflowException as e:
+        print(f"Warning: could not log dataset input (likely already registered): {e}")
+
+    # log code
+    mlflow.log_artifact(__file__)
 
     with open("run_id.txt", "w") as f:
-        f.write(run.info.run_id)
+        f.write(parent_run.info.run_id)
 
