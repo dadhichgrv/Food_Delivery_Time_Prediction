@@ -35,6 +35,9 @@ jobs:
           echo "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}" >> $GITHUB_ENV
           echo "AZURE_INPUT_BLOB_PREFIX=${{ secrets.AZURE_INPUT_BLOB_PREFIX }}" >> $GITHUB_ENV
           echo "AZURE_INPUT_CONTAINER_NAME=${{ secrets.AZURE_INPUT_CONTAINER_NAME }}" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" >> $GITHUB_ENV
+          echo "AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
 
       - name: Run DVC pipeline
         run: |
