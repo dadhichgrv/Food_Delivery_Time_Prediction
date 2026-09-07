@@ -32,7 +32,9 @@ jobs:
           echo "RESOURCE_GROUP=${{ secrets.RESOURCE_GROUP }}" >> $GITHUB_ENV
           echo "ML_WORKSPACE_NAME=${{ secrets.ML_WORKSPACE_NAME }}" >> $GITHUB_ENV
           echo "tenant_id=${{ secrets.TENANT_ID }}" >> $GITHUB_ENV
-
+          echo "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}" >> $GITHUB_ENV
+          echo "AZURE_INPUT_BLOB_PREFIX=${{ secrets.AZURE_INPUT_BLOB_PREFIX }}" >> $GITHUB_ENV
+          echo "AZURE_INPUT_CONTAINER_NAME=${{ secrets.AZURE_INPUT_CONTAINER_NAME }}" >> $GITHUB_ENV
 
       - name: Run DVC pipeline
         run: |
