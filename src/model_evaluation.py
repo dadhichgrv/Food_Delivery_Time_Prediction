@@ -6,15 +6,15 @@ import json
 from dotenv import load_dotenv
 from sklearn.metrics import mean_absolute_error, r2_score
 
-from azure.identity import DefaultAzureCredential, InteractiveBrowserCredential
+from azure.identity import DefaultAzureCredential, InteractiveBrowserCredential, EnvironmentCredential
 from azure.ai.ml import MLClient
 
 load_dotenv()
 
-tenant_id = "2c06054d-006e-4d5f-bf87-12294be4e2da"
+tenant_id = os.getenv("tenant_id")
 
 try:
-    credential = DefaultAzureCredential(interactive_browser_tenant_id=tenant_id)
+    credential = DefaultAzureCredential()
     credential.get_token("https://management.azure.com/.default")
 except Exception:
     credential = InteractiveBrowserCredential(tenant_id=tenant_id)

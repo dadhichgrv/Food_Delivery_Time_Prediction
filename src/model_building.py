@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 import yaml
-from azure.identity import DefaultAzureCredential , InteractiveBrowserCredential
+from azure.identity import DefaultAzureCredential , InteractiveBrowserCredential, EnvironmentCredential
 from azure.ai.ml import MLClient
 from sklearn.model_selection import RandomizedSearchCV
 from mlflow.exceptions import MlflowException
@@ -18,7 +18,7 @@ load_dotenv()
 tenant_id = os.getenv("tenant_id")
 
 try:
-    credential = DefaultAzureCredential(interactive_browser_tenant_id=tenant_id)
+    credential = DefaultAzureCredential()
     credential.get_token("https://management.azure.com/.default")
 except Exception:
     credential = InteractiveBrowserCredential(tenant_id=tenant_id)
