@@ -236,3 +236,5 @@ __marimo__/
 
 /best_rf_model.pkl
 /mlruns
+/power_transformer.pkl
+/run_information.json

@@ -1,30 +1,30 @@
 schema: '2.0'
 stages:
   data_ingestion:
-    cmd: uv run python src/data_ingestion.py
+    cmd: uv run python src/01.data_ingestion.py
     deps:
-    - path: src/data_ingestion.py
+    - path: src/01.data_ingestion.py
       hash: md5
-      md5: 9309eaeeb2985e8912b6d827b7fa8db2
-      size: 1571
+      md5: ed635ca98b03bc13d407b9b2472d9461
+      size: 2352
     outs:
-    - path: data/raw
+    - path: data/cleaned
       hash: md5
       md5: 95039b850abe5e46163aee2ba5815a97.dir
       size: 7730654
       nfiles: 1
   data_cleaning:
-    cmd: uv run python src/data_cleaning.py
+    cmd: uv run python src/02.data_cleaning.py
     deps:
-    - path: data/raw
+    - path: data/cleaned
       hash: md5
       md5: 95039b850abe5e46163aee2ba5815a97.dir
       size: 7730654
       nfiles: 1
-    - path: src/data_cleaning.py
+    - path: src/02.data_cleaning.py
       hash: md5
-      md5: f0032de925c82a30e229bc30aaadb675
-      size: 5040
+      md5: 6fc1143e1baa0c6ade580269064463eb
+      size: 5686
     outs:
     - path: data/processed
       hash: md5
@@ -32,65 +32,90 @@ stages:
       size: 7878711
       nfiles: 1
   feature_engineering:
-    cmd: uv run python src/feature_engineering.py
+    cmd: uv run python src/03.feature_engineering.py
     deps:
     - path: data/processed
       hash: md5
       md5: e8db0aa4b1fdc40e86d57e5bc581274e.dir
       size: 7878711
       nfiles: 1
-    - path: src/feature_engineering.py
+    - path: src/03.feature_engineering.py
       hash: md5
-      md5: aa61bf313aacbcbfbede5f3e33176714
-      size: 6575
+      md5: 7079983583130b505f18b577bba06813
+      size: 7562
     params:
       params.yaml:
         feature_engineering.test_size: 0.3
     outs:
     - path: data/features
       hash: md5
-      md5: 38e660b684ddfb578c4d9fdbd7960cde.dir
-      size: 13812809
+      md5: 8745d6a31fe4f83508a7b8a43183a7cd.dir
+      size: 10056553
       nfiles: 4
-  model_building:
-    cmd: uv run python src/model_building.py
-    deps:
-    - path: data/features
+    - path: models/preprocessor.joblib
       hash: md5
-      md5: 38e660b684ddfb578c4d9fdbd7960cde.dir
-      size: 13812809
-      nfiles: 4
-    - path: src/model_building.py
-      hash: md5
-      md5: 30d9edd48594bce152f6d914242cbd5a
-      size: 3204
-    outs:
-    - path: best_rf_model.pkl
-      hash: md5
-      md5: 47e3f7cc70bf600c8645078c053a001a
-      size: 480197
-  model_evaluation:
-    cmd: uv run python src/model_evaluation.py
-    deps:
-    - path: best_rf_model.pkl
-      hash: md5
-      md5: 47e3f7cc70bf600c8645078c053a001a
-      size: 480197
-    - path: data/features
-      hash: md5
-      md5: 38e660b684ddfb578c4d9fdbd7960cde.dir
-      size: 13812809
-      nfiles: 4
+      md5: 38cc36be970391a8de4e26410f0f1f19
+      size: 7146
     - path: power_transformer.pkl
       hash: md5
       md5: a6c444ff925c3d2c91beb7b19fbe8d82
       size: 629
-    - path: src/model_evaluation.py
+  model_building:
+    cmd: uv run python src/04.model_building.py
+    deps:
+    - path: data/features
       hash: md5
-      md5: fdafe4c714cfda9e9473b219c7d5a530
-      size: 2066
+      md5: 8745d6a31fe4f83508a7b8a43183a7cd.dir
+      size: 10056553
+      nfiles: 4
+    - path: src/04.model_building.py
+      hash: md5
+      md5: 60b1b92d2b10818d9d05297573ae86bb
+      size: 5053
+    params:
+      params.yaml:
+        model_building:
+          max_depth: 3
+          n_estimators: 100
+          random_state: 42
     outs:
-    - path: metrics.json
+    - path: models/random_forest.joblib
       hash: md5
-      md5: 042559ef07d8fcb281d03b7107fef920
-      size: 70
+      md5: 128b7f9675b94d01fb69798a982d6e77
+      size: 141265
+  model_evaluation:
+    cmd: uv run python src/05.model_evaluation.py
+    deps:
+    - path: data/features
+      hash: md5
+      md5: 8745d6a31fe4f83508a7b8a43183a7cd.dir
+      size: 10056553
+      nfiles: 4
+    - path: models/random_forest.joblib
+      hash: md5
+      md5: 128b7f9675b94d01fb69798a982d6e77
+      size: 141265
+    - path: power_transformer.pkl
+      hash: md5
+      md5: a6c444ff925c3d2c91beb7b19fbe8d82
+      size: 629
+    - path: src/05.model_evaluation.py
+      hash: md5
+      md5: 1b8b9abc52d5c806ade2f419ffc485cb
+      size: 6007
+    outs:
+    - path: run_information.json
+      hash: md5
+      md5: 1c4eb2d654b0e36f1c23222d32d3c4d3
+      size: 427
+  model_registry:
+    cmd: uv run python src/06.model_registry.py
+    deps:
+    - path: run_information.json
+      hash: md5
+      md5: 1c4eb2d654b0e36f1c23222d32d3c4d3
+      size: 427
+    - path: src/06.model_registry.py
+      hash: md5
+      md5: 6b8bc36a786b1afebc377462f7744c9d
+      size: 2522
