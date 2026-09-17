@@ -39,9 +39,9 @@ jobs:
           echo "AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" >> $GITHUB_ENV
           echo "AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
     
-      - name: DVC Pull
-        run: |
-          dvc pull
+      # - name: DVC Pull
+      #   run: |
+      #     dvc pull
 
       - name: Test Model Registry
         run: |
