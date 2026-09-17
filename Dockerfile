@@ -29,3 +29,9 @@ EXPOSE 8000
 # Use uvicorn to run FastAPI app 
 CMD ["uvicorn","app:app","--host", "0.0.0.0", "--port", "8000"]
 
+
+# Command to run docker file 
+# docker build -t food_delivery_time_prediction:latest .
+# docker run --env-file .env --name delivery_time_pred -p 8000:8000 food_delivery_time_prediction
+# When u get url , in the search bar write localhost:8000/docs
+
