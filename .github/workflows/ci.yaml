@@ -43,11 +43,24 @@ jobs:
         run: |
           dvc pull
 
-      - name: Run DVC pipeline
-        run: |
-          dvc repro
+      # - name: Run DVC pipeline
+      #   run: |
+      #     dvc repro
 
       - name: Test Model Registry
         run: |
           uv run python tests/test_model_registry.py
+
+      - name: Azure CONTAINER REGISTRY LOGIN
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ secrets.AZURE_REGISTRY_SERVER }}
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+      - name: Build and push Docker Image to ACR
+        run: |
+          docker build -t ${{ secrets.AZURE_REGISTRY_SERVER }}/${{ secrets.ACR_REPOSITORY }}:latest .
+          docker push ${{ secrets.AZURE_REGISTRY_SERVER }}/${{ secrets.ACR_REPOSITORY }}:latest .
+ 
       
