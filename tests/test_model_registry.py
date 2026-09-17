@@ -1,7 +1,7 @@
 
 import pandas as pd
 from pydantic import BaseModel
-import uvicorn, os
+import os
 import mlflow, pickle
 import json, joblib
 from pathlib import Path
