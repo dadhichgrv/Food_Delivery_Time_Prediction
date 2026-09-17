@@ -34,9 +34,10 @@ def load_model_info(file_path):
     with open(file_path) as f:
         return json.load(f)
     
-    
-run_info = load_model_info("run_information.json")
+ROOT_FOLDER = Path(__file__).parent.parent
+run_info = load_model_info(ROOT_FOLDER / "run_information.json")
 model_name = run_info['model_name']
+
 
 final_stage = 'production'
 
@@ -44,9 +45,6 @@ final_stage = 'production'
 client = MlflowClient()
 
 latest_versions = client.search_model_versions(f"name='{model_name}'")
-for i in latest_versions:
-    print("versions ",i)
-    print("\n")
 latest_version  = latest_versions[0].version if latest_versions else None 
 
 assert latest_version is not None , f"No model at {final_stage} stage"
