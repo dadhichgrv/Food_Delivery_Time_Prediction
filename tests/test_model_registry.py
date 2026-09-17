@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+
 import pandas as pd
 from pydantic import BaseModel
 import uvicorn, os
