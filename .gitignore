@@ -223,6 +223,7 @@ __marimo__/
 /data/raw
 /data/processed
 /data/features
+/data/cleaned
 /model.pkl
 /metric
 /metrics.json
