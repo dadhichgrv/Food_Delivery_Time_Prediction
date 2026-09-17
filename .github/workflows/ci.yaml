@@ -45,7 +45,7 @@ jobs:
 
       - name: Test Model Registry
         run: |
-          uv run python test/test_model_registry.py
+          uv run python tests/test_model_registry.py
 
       - name: Run DVC pipeline
         run: |
