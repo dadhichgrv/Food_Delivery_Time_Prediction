@@ -155,29 +155,34 @@ def post_prediction(X:Data):
 
 
 if __name__=="__main__":
-    uvicorn.run(app="app:app",  port=8000, reload=True)
+    # For Docker runs on linux we need to give host as 0.0.0.0
+    uvicorn.run(app="app:app", host="0.0.0.0", port=8000, reload=True)
 
+    # For local testing host 127 is fine
+    #uvicorn.run(app="app:app", port=8000, reload=True)
 
 # {
-#   "id": "0x4607",
-#   "delivery_person_id": "INDORES13DEL02",
-#   "delivery_person_age": "32",
-#   "delivery_person_ratings": "4.9",
-#   "delivery_location_latitude": 22.745049,
-#   "restaurant_longitude": 75.892471,
-#   "delivery_latitude": 22.765049,
-#   "delivery_longitude": 75.912471,
-#   "order_date": "19-03-2022",
-#   "order_time": "11:30:00",
-#   "order_picked_time": "11:45:00",
-#   "weather": "sunny",
-#   "traffic": "jam",
-#   "vehicle_condition": 0,
-#   "type_of_order": "snack",
-#   "type_of_vehicle": "motorcycle",
+#   "ID": "0x4607",
+#   "Delivery_person_ID": "INDORES13DEL02",
+#   "Delivery_person_Age": "32",
+#   "Delivery_person_Ratings": "4.9",
+#   "Restaurant_latitude": 22.745049,
+#   "Restaurant_longitude": 75.892471,
+#   "Delivery_location_latitude": 22.765049,
+#   "Delivery_location_longitude": 75.912471,
+#   "Order_Date": "19-03-2022",
+#   "Time_Orderd": "11:30:00",
+#   "Time_Order_picked": "11:50:00",
+#   "Weatherconditions": "sunny",
+#   "Road_traffic_density": "jam",
+#   "Vehicle_condition": 0,
+#   "Type_of_order": "snack",
+#   "Type_of_vehicle": "motorcycle",
 #   "multiple_deliveries": "0",
-#   "festival": "no",
-#   "city_type":"urban"}
+#   "Festival": "yes",
+#   "City": "urban"
+# }
+
 
     
 
