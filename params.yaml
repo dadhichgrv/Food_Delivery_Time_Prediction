@@ -1,6 +1,6 @@
 
 feature_engineering:
-  test_size: 0.25
+  test_size: 0.35
 
 model_building:
   max_depth: 3

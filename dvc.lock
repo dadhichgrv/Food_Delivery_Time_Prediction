@@ -45,28 +45,28 @@ stages:
       size: 7562
     params:
       params.yaml:
-        feature_engineering.test_size: 0.25
+        feature_engineering.test_size: 0.35
     outs:
     - path: data/features
       hash: md5
-      md5: b16b9faea5c9dab013d8ace5d206d0ce.dir
-      size: 9816737
+      md5: 1bdb27c18b42d39adf70fa150d2fb2eb.dir
+      size: 9819830
       nfiles: 4
     - path: models/preprocessor.joblib
       hash: md5
-      md5: 769d15029b5c29b123eb46867fcb7864
+      md5: ae4a45aea98291836512da597b64ccce
       size: 7105
     - path: power_transformer.pkl
       hash: md5
-      md5: ffd6e0a681338ba169dd7c1540010126
+      md5: 01139372825405470e9f29d8fa97785e
       size: 629
   model_building:
     cmd: uv run python src/04.model_building.py
     deps:
     - path: data/features
       hash: md5
-      md5: b16b9faea5c9dab013d8ace5d206d0ce.dir
-      size: 9816737
+      md5: 1bdb27c18b42d39adf70fa150d2fb2eb.dir
+      size: 9819830
       nfiles: 4
     - path: src/04.model_building.py
       hash: md5
@@ -81,23 +81,23 @@ stages:
     outs:
     - path: models/random_forest.joblib
       hash: md5
-      md5: 00c50032e76911a02fac0762baf571a4
+      md5: 09705f60b4d823cbd8cfd6501b2e3d67
       size: 141249
   model_evaluation:
     cmd: uv run python src/05.model_evaluation.py
     deps:
     - path: data/features
       hash: md5
-      md5: b16b9faea5c9dab013d8ace5d206d0ce.dir
-      size: 9816737
+      md5: 1bdb27c18b42d39adf70fa150d2fb2eb.dir
+      size: 9819830
       nfiles: 4
     - path: models/random_forest.joblib
       hash: md5
-      md5: 00c50032e76911a02fac0762baf571a4
+      md5: 09705f60b4d823cbd8cfd6501b2e3d67
       size: 141249
     - path: power_transformer.pkl
       hash: md5
-      md5: ffd6e0a681338ba169dd7c1540010126
+      md5: 01139372825405470e9f29d8fa97785e
       size: 629
     - path: src/05.model_evaluation.py
       hash: md5
@@ -106,14 +106,14 @@ stages:
     outs:
     - path: run_information.json
       hash: md5
-      md5: 65f4adcefb4628fe30e752f5a95c699a
+      md5: 45de78fcb3ee71ea85e3a0b37f9a3efd
       size: 427
   model_registry:
     cmd: uv run python src/06.model_registry.py
     deps:
     - path: run_information.json
       hash: md5
-      md5: 65f4adcefb4628fe30e752f5a95c699a
+      md5: 45de78fcb3ee71ea85e3a0b37f9a3efd
       size: 427
     - path: src/06.model_registry.py
       hash: md5
