@@ -24,7 +24,9 @@ jobs:
         uses: astral-sh/setup-uv@v3
 
       - name: Install dependencies
-        run: uv pip install --system -r requirements-docker.txt
+        run: |
+          uv pip install --system -r requirements-docker.txt
+          uv pip install "dvc[azure]"
 
       - name: Configure environment variables
         run: |
@@ -45,9 +47,6 @@ jobs:
         run: |
           dvc pull
 
-      # - name: Run DVC pipeline
-      #   run: |
-      #     dvc repro
 
       - name: Test Model Registry
         run: |
