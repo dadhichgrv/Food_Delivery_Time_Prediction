@@ -43,11 +43,11 @@ jobs:
       #   run: |
       #     dvc pull
 
-      - name: Test Model Registry
-        run: |
-          uv run python tests/test_model_registry.py
-
       - name: Run DVC pipeline
         run: |
           dvc repro
+
+      - name: Test Model Registry
+        run: |
+          uv run python tests/test_model_registry.py
       
