@@ -41,11 +41,12 @@ jobs:
           echo "AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" >> $GITHUB_ENV
           echo "AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
     
+      - name: Configure DVC remote credentials
+        run: |
+          dvc remote modify --local myazureremote connection_string "${{ secrets.AZURE_CONNECTION_STRING }}"
 
       - name: DVC Pull
-        run: |
-          dvc pull
-
+        run: dvc pull
 
       - name: Test Model Registry
         run: |
