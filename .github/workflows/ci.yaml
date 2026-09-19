@@ -64,6 +64,21 @@ jobs:
           docker build -t ${{ secrets.AZURE_REGISTRY_SERVER }}/${{ secrets.ACR_REPOSITORY }}:latest .
           docker push ${{ secrets.AZURE_REGISTRY_SERVER }}/${{ secrets.ACR_REPOSITORY }}:latest
 
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: '{"clientId":"${{ secrets.AZURE_CLIENT_ID }}","clientSecret":"${{ secrets.AZURE_CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.AZURE_TENANT_ID }}"}'
+
+      - name: Deploy new image to Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ secrets.WEBAPP_NAME }}
+          images: ${{ secrets.AZURE_REGISTRY_SERVER }}/${{ secrets.ACR_REPOSITORY }}:latest
+
+      - name: Restart Web App
+        run: |
+          az webapp restart --name ${{ secrets.WEBAPP_NAME }} --resource-group ${{ secrets.RESOURCE_GROUP }}
+
       
  
       
