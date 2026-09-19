@@ -223,6 +223,19 @@ __marimo__/
 /data/raw
 /data/processed
 /data/features
+/data/cleaned
 /model.pkl
-/etric
+/metric
 /metrics.json
+/swiggy.csv
+/test.yaml
+/data_clean_utils.py
+/Contacts.xlsx
+/Contacts copy.csv
+/check.yaml 
+/Extra
+
+/best_rf_model.pkl
+/mlruns
+/power_transformer.pkl
+/run_information.json

@@ -7,7 +7,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.impute import SimpleImputer, KNNImputer, MissingIndicator
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder, MinMaxScaler, PowerTransformer, OrdinalEncoder
 from sklearn.model_selection import train_test_split
-import pickle
+import pickle, joblib
 import yaml
 from typing import Union
 import logging
@@ -71,12 +71,14 @@ def load_params(params_path: str) -> float:
     except ValueError as e:
         logger.error(e)
         raise
-    
-# Similalrt add File handling code using Chat GPT for below codes 
 
 def read_data(url:str) -> pd.DataFrame:
-    df = pd.read_csv(url)
+    try:
+        df = pd.read_csv(url)
+    except FileNotFoundError:
+        logger.error("File Not found")
     return df
+
 
 def drop_columns(df: pd.DataFrame) -> pd.DataFrame:
     # drop columns not required for model input
@@ -86,10 +88,18 @@ def drop_columns(df: pd.DataFrame) -> pd.DataFrame:
                     'delivery_latitude',
                     'delivery_longitude',
                     'order_date',
-                    "order_hour"]
-
+                    "order_hour",
+                    "city_name","order_month"]
+    
+    # Drop missing values also
     temp_df = df.drop(labels=columns_to_drop, axis=1, errors='ignore').dropna()
     return temp_df
+
+def save_transformer(transfomer, save_dir: Path, transformer_name:str):
+    save_location = save_dir / transformer_name 
+    joblib.dump(value=transfomer, filename = save_location)
+
+
 
 
 def split_data(temp_df: pd.DataFrame,test_size:float)->tuple:
@@ -108,7 +118,7 @@ def data_preprocessing(X_train:pd.DataFrame, X_test:pd.DataFrame, y_train:pd.Dat
 
     nominal_cat_cols = ['weather','type_of_order',
                     'type_of_vehicle',"festival",
-                    "city_type","city_name","order_month",
+                    "city_type",
                     "is_weekend",
                     "time_of_day"]
 
@@ -124,8 +134,13 @@ def data_preprocessing(X_train:pd.DataFrame, X_test:pd.DataFrame, y_train:pd.Dat
     preprocessor = ColumnTransformer(transformers=[
     ("scale", MinMaxScaler(), num_cols),
     ("nominal_encode", OneHotEncoder(drop="first",handle_unknown="ignore",sparse_output=False), nominal_cat_cols),
-    ("ordinal_encode", OrdinalEncoder(categories=[traffic_order,distance_type_order]), ordinal_cat_cols)
-                                                 ],remainder="passthrough",verbose_feature_names_out=False)
+    ("ordinal_encode", OrdinalEncoder(categories=[traffic_order,distance_type_order], 
+                                                  encoded_missing_value=-999,
+                                                  handle_unknown="use_encoded_value",
+                                                  unknown_value=-1),ordinal_cat_cols)
+                                                 ],
+                                                 remainder="passthrough",
+                                                 verbose_feature_names_out=False)
 
     preprocessor.set_output(transform="pandas")
 
@@ -145,16 +160,16 @@ def data_preprocessing(X_train:pd.DataFrame, X_test:pd.DataFrame, y_train:pd.Dat
     test_features = pd.DataFrame(X_test_trans)
     test_features['time_taken'] = y_test_pt
 
-    return pt,train_features, test_features
+    return pt,train_features, test_features,preprocessor
 
 
 def save_data(data_path,pt,train_features, test_features,X_train,X_test,y_train,y_test)->None:
     # Create folder
-    os.makedirs(data_path)
+    data_path.mkdir(exist_ok=True,parents=True)
 
     # Write transformed features to csv
-    train_features.to_csv(os.path.join(data_path,"train_features.csv"),index=False)
-    test_features.to_csv(os.path.join(data_path,"test_features.csv"),index=False)
+    train_features.to_csv(data_path / "train_features.csv",index=False)
+    test_features.to_csv(data_path / "test_features.csv",index=False)
 
     # Write original features to csv
     train = pd.DataFrame(X_train)
@@ -163,8 +178,8 @@ def save_data(data_path,pt,train_features, test_features,X_train,X_test,y_train,
     test = pd.DataFrame(X_test)
     test['time_taken'] = y_test
 
-    train.to_csv(os.path.join(data_path,"train.csv"),index=False)
-    test.to_csv(os.path.join(data_path,"test.csv"),index=False)
+    train.to_csv(data_path / "train.csv",index=False)
+    test.to_csv(data_path / "test.csv",index=False)
 
     # Save Power Transformer 
     pickle.dump(pt,open("power_transformer.pkl","wb"))
@@ -172,6 +187,10 @@ def save_data(data_path,pt,train_features, test_features,X_train,X_test,y_train,
 
 ROOT_FOLDER = Path(__file__).resolve().parent.parent
 INPUT_FOLDER = ROOT_FOLDER / "data" / "processed" 
+OUTPUT_FOLDER = ROOT_FOLDER / "data" / "features"
+transformer_save_dir = ROOT_FOLDER / "models" 
+transformer_filename = "preprocessor.joblib"
+
 
 def main():
     test_size = load_params("params.yaml")
@@ -179,8 +198,13 @@ def main():
     df = read_data(file_path.as_posix())
     temp_df = drop_columns(df)
     X_train, X_test, y_train, y_test = split_data(temp_df,test_size)
-    pt,train_features, test_features = data_preprocessing(X_train, X_test, y_train, y_test)
-    save_data(os.path.join("data","features"),pt,train_features, test_features,X_train,X_test,y_train,y_test)
+    pt,train_features, test_features,preprocessor = data_preprocessing(X_train, X_test, y_train, y_test)
+    save_data(OUTPUT_FOLDER ,pt,train_features, test_features,X_train,X_test,y_train,y_test)
+    transformer_save_dir.mkdir(exist_ok=True,parents=True)
+    save_transformer(transfomer=preprocessor, 
+                     save_dir = transformer_save_dir, 
+                     transformer_name=transformer_filename)
+    logger.info("Preprocessor saved to location")
 
 if __name__=="__main__":
     main()    

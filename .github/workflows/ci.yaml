@@ -1,0 +1,69 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -r requirements-docker.txt
+
+      - name: Configure environment variables
+        run: |
+          echo "SUBSCRIPTION_ID=${{ secrets.SUBSCRIPTION_ID }}" >> $GITHUB_ENV
+          echo "RESOURCE_GROUP=${{ secrets.RESOURCE_GROUP }}" >> $GITHUB_ENV
+          echo "ML_WORKSPACE_NAME=${{ secrets.ML_WORKSPACE_NAME }}" >> $GITHUB_ENV
+          echo "tenant_id=${{ secrets.TENANT_ID }}" >> $GITHUB_ENV
+          echo "AZURE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}" >> $GITHUB_ENV
+          echo "AZURE_STORAGE_CONNECTION_STRING=${{ secrets.AZURE_CONNECTION_STRING }}" >> $GITHUB_ENV
+          echo "AZURE_INPUT_BLOB_PREFIX=${{ secrets.AZURE_INPUT_BLOB_PREFIX }}" >> $GITHUB_ENV
+          echo "AZURE_INPUT_CONTAINER_NAME=${{ secrets.AZURE_INPUT_CONTAINER_NAME }}" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_ID=${{ secrets.AZURE_CLIENT_ID }}" >> $GITHUB_ENV
+          echo "AZURE_CLIENT_SECRET=${{ secrets.AZURE_CLIENT_SECRET }}" >> $GITHUB_ENV
+          echo "AZURE_TENANT_ID=${{ secrets.AZURE_TENANT_ID }}" >> $GITHUB_ENV
+    
+      - name: Configure DVC remote credentials
+        run: |
+          dvc remote modify --local myazureremote connection_string "${{ secrets.AZURE_CONNECTION_STRING }}"
+
+      - name: DVC Pull
+        run: dvc pull
+
+      - name: Test Model Registry
+        run: |
+          uv run python tests/test_model_registry.py
+
+      - name: Azure CONTAINER REGISTRY LOGIN
+        uses: azure/docker-login@v2
+        with:
+          login-server: ${{ secrets.AZURE_REGISTRY_SERVER }}
+          username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
+
+      - name: Build and push Docker Image to ACR
+        run: |
+          docker build -t ${{ secrets.AZURE_REGISTRY_SERVER }}/${{ secrets.ACR_REPOSITORY }}:latest .
+          docker push ${{ secrets.AZURE_REGISTRY_SERVER }}/${{ secrets.ACR_REPOSITORY }}:latest
+
+      
+ 
+      

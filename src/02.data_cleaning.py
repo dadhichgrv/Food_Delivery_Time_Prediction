@@ -2,15 +2,28 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import os, glob
+import logging 
+
+logger = logging.getLogger("data_cleaning")
+logger.setLevel(logging.INFO)
+
+handler = logging.StreamHandler()
+handler.setLevel(logging.INFO)
+
+formatter = logging.Formatter(fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
-ROOT_FOLDER  = Path(__file__).resolve().parent.parent
-INPUT_FOLDER = ROOT_FOLDER / "data" / "raw"
-OUTPUT_FOLDER = ROOT_FOLDER / "data" / "processed"
+
 
 # Read the csv data file
-csv_file = list(INPUT_FOLDER.glob("*.csv"))
-df = pd.read_csv(csv_file[0])
+def load_data(data_path:Path) ->pd.DataFrame:
+   try:
+      data = pd.read_csv(data_path)
+   except FileNotFoundError:
+      logger.error("No file found")
+   return data
+# csv_file = list(INPUT_FOLDER.glob("*.csv"))
+# df = pd.read_csv(csv_file[0])
 
 
 def clean_lat_long(data : pd.DataFrame, threshold=1):
@@ -47,13 +60,15 @@ def clean_data(data: pd.DataFrame):
     data['order_picked_time'] = pd.to_datetime(data['order_picked_time'], format='mixed', errors='coerce')
     data['order_hour'] = data['order_time'].dt.hour
     # What time of day was ordered
-    data['time_of_day'] = np.select(condlist=[
-        (data['order_hour'].between(6, 12, inclusive="left")),
-        (data['order_hour'].between(12, 17, inclusive="left")),
-        (data['order_hour'].between(17, 20, inclusive="left")),
-        (data['order_hour'].between(20, 24, inclusive="left"))],
-        choicelist=["morning", "afternoon", "evening", "night"],
-        default="after_midnight")
+    data['time_of_day'] = pd.cut(data['order_hour'],bins=[0,6,12,17,20,24],right=True,
+               labels=["after_midnight","morning","afternoon","evening","night"])
+    # np.select(condlist=[
+    #     (data['order_hour'].between(6, 12, inclusive="left")),
+    #     (data['order_hour'].between(12, 17, inclusive="left")),
+    #     (data['order_hour'].between(17, 20, inclusive="left")),
+    #     (data['order_hour'].between(20, 24, inclusive="left"))],
+    #     choicelist=["morning", "afternoon", "evening", "night"],
+    #     default="after_midnight")
 
     data['pick_up_time_mins'] = (data['order_picked_time'] - data['order_time']).dt.seconds / 60
     # Clean weather column and replace nan string with np.nan
@@ -111,9 +126,22 @@ def perform_data_cleaning(data:pd.DataFrame):
 
 
 # data_path = os.path.join("data","processed")
-OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)
 
-perform_data_cleaning(df).to_csv(OUTPUT_FOLDER / "swiggy_cleaned.csv",index=False)
+
+#perform_data_cleaning(df).to_csv(OUTPUT_FOLDER / "swiggy_cleaned.csv",index=False)
+
+if __name__=="__main__":
+   
+  ROOT_FOLDER  = Path(__file__).resolve().parent.parent
+  INPUT_FOLDER = ROOT_FOLDER / "data" / "cleaned"
+  OUTPUT_FOLDER = ROOT_FOLDER / "data" / "processed"  
+
+  data_load_path = INPUT_FOLDER / "swiggy_input.csv" 
+
+  OUTPUT_FOLDER.mkdir(parents=True, exist_ok=True)  
+
+  df = load_data(data_load_path)
+  perform_data_cleaning(df).to_csv(OUTPUT_FOLDER / "swiggy_cleaned.csv",index=False)
 
 
 
