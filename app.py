@@ -17,7 +17,8 @@ load_dotenv()
 tenant_id = os.getenv("tenant_id")
 
 import sys
-print("prinitng")
+print("prinitng now")
+print("DEBUG SUBSCRIPTION_ID:", os.getenv("SUBSCRIPTION_ID"))
 print("DEBUG SUBSCRIPTION_ID:", repr(os.getenv("SUBSCRIPTION_ID")), file=sys.stderr, flush=True)
 print("DEBUG RESOURCE_GROUP:", repr(os.getenv("RESOURCE_GROUP")), file=sys.stderr, flush=True)
 print("DEBUG ML_WORKSPACE_NAME:", repr(os.getenv("ML_WORKSPACE_NAME")), file=sys.stderr, flush=True)
