@@ -137,7 +137,3 @@ The app is deployed on **Azure App Service** (Web App for Containers), authentic
 
 - The preprocessor and regressor must originate from the same training run to avoid feature-mismatch errors (see `run_information.json`, which pins the exact registered model version).
 - `OneHotEncoder` categories are inferred at fit time; retraining on a different data split can shift encoded feature names.
-
-## License
-
-Add your license here.
