@@ -16,13 +16,6 @@ load_dotenv()
 
 tenant_id = os.getenv("tenant_id")
 
-import sys
-print("prinitng now")
-print("DEBUG SUBSCRIPTION_ID:", os.getenv("SUBSCRIPTION_ID"))
-print("DEBUG RESOURCE_GROUP:", os.getenv("RESOURCE_GROUP"))
-print("DEBUG ML_WORKSPACE_NAME:", os.getenv("ML_WORKSPACE_NAME"))
-
-
 try:
     credential = DefaultAzureCredential()
     credential.get_token("https://management.azure.com/.default")
